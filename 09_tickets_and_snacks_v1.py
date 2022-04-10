@@ -33,7 +33,7 @@ movie_data_dict = {
     "Water": water,
     "Orange Juice": orange_juice,
 }
-
+# Cost of each snack
 price_dict = {
     "Popcorn": 2.5,
     "M&Ms": 3,
