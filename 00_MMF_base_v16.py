@@ -1,4 +1,4 @@
-"""Based on 00_MMF_base_v12
+"""Based on 00_MMF_base_v15
 
 """
 # Import statements
@@ -48,9 +48,6 @@ def collate_order():
                     ["orange juice", "o", "oj", "juice", "(5"],
                     ["x", "exit", "(6"]]
 
-    # Valid options for yes/no questions
-    valid_yes_no = [["y", "yes"], ["n", "no"]]
-
     # The snack_order list records the complete order for a single user
     snacks_order = []
 
@@ -75,8 +72,9 @@ def collate_order():
                 snacks_order.append([quantity, option])
     return snacks_order
 
+
 # Calculate the ticket price (based on any given age)
-def calculate_ticket_price(age):
+def calculate_ticket_price(age_):
     # Ages - anything over standard_age must qualify for retired price
     child_age = range(12, 16)
     standard_age = range(16, 65)
@@ -85,22 +83,25 @@ def calculate_ticket_price(age):
     standard_price = 10.5
     retired_price = 6.5
 
-    if age in child_age:
-        ticket_price = child_price
-    elif age in standard_age:
-        ticket_price = standard_price
+    if age_ in child_age:
+        ticket_price_ = child_price
+    elif age_ in standard_age:
+        ticket_price_ = standard_price
     else:
-        ticket_price = retired_price
+        ticket_price_ = retired_price
 
-    return ticket_price
+    return ticket_price_
 
 
 # Check that the ticket name is not blank
-def check_blank(question):
-    while True:
+def not_blank(question):
+    valid = ""
+    while not valid:
         response = input(question).title()
+
+        # If name is blank, it shows this error message
         if not response.isalpha():
-            print("Error – please enter a name.")
+            print("\nYou can't include digits or leave this blank...")
         else:
             return response
 
@@ -109,11 +110,13 @@ def age_validator():
     MIN_AGE = 12
     MAX_AGE = 110
     valid_age = input("Please enter the age of the ticket-holder: ")
-    while valid_age.isdigit() is False or int(valid_age) < MIN_AGE or int(valid_age) > MAX_AGE:
+    while valid_age.isdigit() is False or int(valid_age) < MIN_AGE or \
+            int(valid_age) > MAX_AGE:
         if valid_age.isdigit() is False:
             valid_age = input("Please enter an integer (i.e. a whole number "
-                        "with no decimals)"
-                        "\n\nPlease enter the age of the ticket-holder: ")
+                              "with no decimals)"
+                              "\n\nPlease enter the age of the"
+                              " ticket-holder: ")
         elif int(valid_age) < MIN_AGE:
             print("Sorry,", name, "is too young for this movie")
             break
@@ -137,8 +140,61 @@ def check_valid_payment_method():
         ["credit card", "card", "credit", "cc", "cr", "1"],
         ["eftpos", "eft", "pos", "ep", "e" "2"],
         ["cash", "ca", "money", "notes", "coins", "c", "3"]]
-    payment_method = get_choice(ask_payment_method, valid_payment_methods)
-    return payment_method
+    payment_method_ = get_choice(ask_payment_method, valid_payment_methods)
+    return payment_method_
+
+
+def ticket_counting(tickets_sold, maximum):
+    # Calculate total sales and profit
+    if ticket_count < MAX_TICKETS:
+        if ticket_count > 1:  # Making sure it reads OK when one ticket sold
+            print(f"\n{ticket_count} tickets have now been sold")
+        else:
+            print(f"\n1 ticket has now been sold")
+        if MAX_TICKETS - ticket_count > 1:
+            print(f"{MAX_TICKETS - ticket_count} tickets are still available")
+        else:
+            print(
+                f"1 ticket is still available")  # Making sure it reads OK when
+            # only one ticket left
+    else:
+        print("\n!!!!! All the available tickets have now been sold! !!!!!")
+        print("*" * 60)
+
+
+def currency(number):
+    return f"${number:,.2f}"
+
+
+# Function containing instructions
+def show_instructions(valid_responses):
+    instructions = ""
+    while not instructions:
+        instructions = not_blank("Would you like to read the "
+                                 "instructions?: ").lower()
+        instructions = (get_choice(instructions, valid_responses))
+
+    if instructions == "Y":
+        print("**********************************************************\n"
+              "\n\t\t**** Mega Movie Fundraiser Instructions ****\n"
+              "\nYou will be shown how many tickets are still available\n"
+              "for sale and asked for the first ticket-purchaser's name.\n"
+              "You will then be asked to input the ticket-purchaser's age.\n"
+              "\nThis is because:\n"
+              "\t-the minimum age for entry is 12; and\n"
+              "\t-there is a standard price for adults; but\n"
+              "\t-different prices for students and retired people.\n"
+              "\nThe program will then ask you for the snacks required\n"
+              "and once these are entered vou will then need to provide a\n"
+              "valid method of payment.\n"
+              "\nThis process keeps repeating until either all tickets are\n"
+              "sold or you choose to exit the program.\n"
+              "\nOn exit, a summary of sales and profits will be printed to\n"
+              "the screen. Full details of all sales and profits are also \n"
+              "output to .csv files. These can be found in the same\n"
+              "directory in which the program is stored.\n"
+              "******************************************************\n")
+    print("Program launches...")
 
 
 # ******** Main Routine ********
@@ -195,32 +251,38 @@ price_dict = {
     "Water": 2,
     "Orange Juice": 3.25,
 }
-# Ask user if they have used the program before and show instructions
-# if necessary
-
 # Loop to get ticket details
 SNACK_PROFIT_MARGIN = 0.2
 SURCHARGE_RATE = 0.05
-MAX_TICKETS = 5
+MAX_TICKETS = 150
 TICKET_COST_PRICE = 5.00
 name = ""
 ticket_count = 0
 ticket_profit = 0
 surcharge = 0
 
+
+# Ask user if they have used the program before and show instructions
+# if necessary
+print("*** Welcome to Mega Movie ***")
+
+valid_yes_no = [["y", "yes"], ["n", "no"]]
+show_instructions(valid_yes_no)
+
+
 while name != "X" and ticket_count < MAX_TICKETS:
     # get details
     check_max_tickets(MAX_TICKETS, ticket_count)
-    name = check_blank("Enter ticket-holder's name: ").title()
+    name = not_blank("Enter ticket-holder's name: ").title()
     if name != "X":
         age = age_validator()
         if 12 <= int(age) <= 110:
-            ticket_count += 1  # don't want to include escape code in the ticket_count
+            ticket_count += 1  # don't want to include escape code in this code
         # Calculate ticket price
         ticket_price = calculate_ticket_price(int(age))
         if 12 <= int(age) <= 110:
             print(f"For {name} the price is ${ticket_price:,.2f}")
-             # add name and price to lists
+            # add name and price to lists
             all_names.append(name)
             all_tickets.append(ticket_price)
             ticket_profit += (ticket_price - TICKET_COST_PRICE)
@@ -233,19 +295,21 @@ while name != "X" and ticket_count < MAX_TICKETS:
             item.append(0)  # add 0 as the amount for each item
 
         # print(snack_order)
-        for item in snack_order:  # The item only has 2 parts - number and snack
+        for item in snack_order:  # The item only has 2 parts -number and snack
             if len(item) > 0:  # Checking to eliminate any blank orders
                 to_find = item[1]  # Gets the snack name for the item ordered
                 amount = item[0]  # and sets 'amount' to number ordered
-                add_list = movie_data_dict[to_find]  # Matches the snack name to
+                add_list = movie_data_dict[
+                    to_find]  # Matches the snack name to
                 # the movie_data_dict
-                add_list[-1] = amount  # Appends the number ordered to the end of
-                # the dictionary list of quantities ordered eg if the most recent
-                # quantity is 3 it would be added to the end of
+                add_list[
+                    -1] = amount  # Appends the number ordered to the end of
+                # the dictionary list of quantities ordered e.g. if the most
+                # recent quantity is 3 it would be added to the end of
                 # this list: [2, 5, 0, 1, 3]
 
         # After the loop is broken, check for an empty list
-        if len(snack_order) > 0:  # If there is something in the list, print each item
+        if len(snack_order) > 0:  # If there is something in list, print item
             print("\nThis is a summary of your order:")
             for item in snack_order:
                 print(f"\t{item[0]} {item[1]}")
@@ -264,21 +328,7 @@ while name != "X" and ticket_count < MAX_TICKETS:
 
         surcharge_mult_list.append(surcharge_multiplier)
 
-# Calculate total sales and profit
-if ticket_count < MAX_TICKETS:
-    if ticket_count > 1:  # Making sure it reads OK when only one ticket sold
-        print(f"\n{ticket_count} tickets have now been sold")
-    else:
-        print(f"\n1 ticket has now been sold")
-    if MAX_TICKETS - ticket_count > 1:
-        print(f"{MAX_TICKETS - ticket_count} tickets are still available")
-    else:
-        print(f"1 ticket is still available")  # Making sure it reads OK when
-        # only one ticket left
-else:
-    print("\n!!!!! All the available tickets have now been sold! !!!!!")
-    print("*" * 60)
-
+        ticket_counting(ticket_count, MAX_TICKETS)
 
 # print details
 print()
@@ -314,20 +364,18 @@ for item in snack_lists:
     # Sum item in each snack list
     summary_data.append(sum(item))
 
-
 # Get snack profit
 # Get snack total from panda
 snack_total = movie_frame["Snack Cost"].sum()
 snack_profit = snack_total * SNACK_PROFIT_MARGIN
-summary_data.append(snack_profit)
-
-# Get ticket profit and add to list
-summary_data.append(ticket_profit)
-
 
 # Work out total profit and add to list
 total_profit = snack_profit + ticket_profit
-summary_data.append(total_profit)
+# Format profit figures and ass to summary list
+currency_amounts = [snack_profit, ticket_profit, total_profit]
+for amount in currency_amounts:
+    amount = currency(amount)
+    summary_data.append(amount)
 
 # Creates the summary frame
 summary_frame = pandas.DataFrame(summary_data_dict)
@@ -336,16 +384,24 @@ summary_frame = summary_frame.set_index("Item")
 # Force all columns to be printed
 pandas.set_option('display.max_columns', None)
 
-# Display numbers to 2 decimal places
-pandas.set_option("display.precision", 2)
+# *** Pre Printing / Export ***
+# Format currency values, so they have $'s
+# Ticket details formatting (using currency function)
+currency_amounts = ["Ticket", "Snack Cost", "Sub Total", "Surcharge", "Total"]
+for amount in currency_amounts:
+    movie_frame[amount] = movie_frame[amount].apply(currency)  # this is a call
+    # to the currency() function above
 
-print(movie_frame)
+# Write each frame to separate csv files
+movie_frame.to_csv("ticket_details.csv")
+summary_frame.to_csv("snack_summary.csv")
 
 # Printing the abbreviated table
 print()
 print("*** Ticket/Snack Information ***")
 # Refers to an export file - functionally yet to be developed
-print("Note: for full details, please see the excel file called zzz")
+print("Note: for full details, please see the excel file called "
+      "snack_summary.csv; and ticket_details.csv")
 print()
 print(movie_frame[["Ticket", "Snack Cost", "Sub Total", "Surcharge", "Total"]])
 print()
@@ -355,4 +411,6 @@ print("*** Snack/Profit Summary ***")
 print()
 print(summary_frame)
 
+# Remaining tickets
+ticket_counting(ticket_count, MAX_TICKETS)
 # Output data to text file
